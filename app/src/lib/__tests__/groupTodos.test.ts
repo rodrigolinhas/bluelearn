@@ -110,9 +110,21 @@ describe("groupTodosByTitle", () => {
   });
 
   it("preserves insertion order of the first occurrence of each normalized title", () => {
-    const todoA = makeTodoItem({ title: "Zebra Crossing" });
-    const todoB = makeTodoItem({ title: "Alpha Centauri" });
-    const todoA2 = makeTodoItem({ title: "zebra crossing" });
+    const todoA = makeTodoItem({
+      id: "zebra-1",
+      title: "Zebra Crossing",
+      created_at: "2026-01-01T10:00:00Z",
+    });
+    const todoB = makeTodoItem({
+      id: "alpha-1",
+      title: "Alpha Centauri",
+      created_at: "2026-01-01T11:00:00Z",
+    });
+    const todoA2 = makeTodoItem({
+      id: "zebra-2",
+      title: "zebra crossing",
+      created_at: "2026-01-02T10:00:00Z",
+    });
 
     const groups = groupTodosByTitle([todoA, todoB, todoA2]);
 

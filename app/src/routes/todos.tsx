@@ -1,13 +1,19 @@
 import { useMemo } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { paginationSchema } from "@bluelearn/schemas";
 
 import { Separator } from "@/components/ui/separator";
 import { TodoCard } from "@/components/cards/TodoCard";
+import { Pagination } from "@/components/Pagination";
 
 import { listTodos } from "@/lib/api/todos";
 import { groupTodosByTitle } from "@/lib/groupTodos";
+import { usePagination } from "@/lib/usePagination";
+
+const PAGE_SIZE = 10;
 
 export const Route = createFileRoute("/todos")({
+  validateSearch: paginationSchema.pick({ page: true }),
   loader: ({ abortController }) =>
     listTodos({ signal: abortController.signal }),
   errorComponent: TodosLoadError,
@@ -47,9 +53,25 @@ const TodosPage = ({ children }: TodosPageProps) => {
 };
 
 function RouteComponent() {
+  const { page } = Route.useSearch();
   const todos = Route.useLoaderData();
+  const navigate = useNavigate();
 
   const groups = useMemo(() => groupTodosByTitle(todos), [todos]);
+
+  const {
+    page: activePage,
+    totalPages,
+    pageRows,
+    goToPage,
+    toFirst,
+    onPrevious,
+    onNext,
+    toLast,
+  } = usePagination(groups, PAGE_SIZE, {
+    page,
+    onPageChange: (p) => navigate({ to: "/todos", search: { page: p } }),
+  });
 
   if (groups.length === 0) {
     return (
@@ -64,10 +86,24 @@ function RouteComponent() {
   return (
     <TodosPage>
       <section className="grid gap-6 py-4 md:grid-cols-2">
-        {groups.map((group) => (
+        {pageRows.map((group) => (
           <TodoCard key={group.key} todo={group} />
         ))}
       </section>
+
+      {totalPages > 1 && (
+        <div className="mt-8 mb-4">
+          <Pagination
+            activePageNo={activePage}
+            onPageSelect={goToPage}
+            toFirst={toFirst}
+            onPrevious={onPrevious}
+            onNext={onNext}
+            toLast={toLast}
+            totalPages={totalPages}
+          />
+        </div>
+      )}
     </TodosPage>
   );
 }
