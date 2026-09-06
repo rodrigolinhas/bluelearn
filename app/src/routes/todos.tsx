@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { paginationSchema } from "@bluelearn/schemas";
 
 import { Separator } from "@/components/ui/separator";
@@ -78,6 +78,25 @@ function RouteComponent() {
       <TodosPage>
         <p className="text-sm text-muted-foreground">
           No todo guides right now.
+        </p>
+      </TodosPage>
+    );
+  }
+
+  // A hand-typed or stale page number lands past the end. Say so instead of
+  // showing the empty-state copy, which reads like there is nothing to browse.
+  if (page > totalPages) {
+    return (
+      <TodosPage>
+        <p className="text-sm text-muted-foreground">
+          Page {page} is past the last page.{" "}
+          <Link
+            to="/todos"
+            search={{ page: 1 }}
+            className="underline underline-offset-4"
+          >
+            Back to page 1
+          </Link>
         </p>
       </TodosPage>
     );
